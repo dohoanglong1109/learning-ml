@@ -7,6 +7,7 @@ class LogisticRegressionRaw:
         self.weight = None
         self.lr = lr
         self.epochs = epochs
+        self.history = []
 
     def _sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
@@ -15,16 +16,22 @@ class LogisticRegressionRaw:
         return np.column_stack((np.ones(X_raw.shape[0]), X_raw))
 
     def fit(self, X_raw, y):
+        epsilon = 1e-15
+        y = y.ravel()
         X_aug = self._add_bias(X_raw)  # X_aug (m x (1+n))
         m, n_b = X_aug.shape
-
         self.weight = np.zeros(n_b)
 
         for i in range(self.epochs):
             y_hat = self._sigmoid(X_aug @ self.weight)
-            e = y_hat - y
+            y_hat_clipped = np.clip(y_hat, epsilon, 1 - epsilon)
 
-            grad = (1 / m) * (X_aug.T @ e)
+            term1 = y.T @ np.log(y_hat_clipped)
+            term2 = (1 - y).T @ np.log(1 - y_hat_clipped)
+            log_loss = (-1 / m) * (term1 + term2)
+            self.history.append(log_loss)
+
+            grad = (1 / m) * (X_aug.T @ (y_hat - y))
             self.weight -= self.lr * grad
 
     def predict_prob(self, X_raw):
