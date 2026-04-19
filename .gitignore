@@ -1,0 +1,19 @@
+# Loại bỏ môi trường ảo
+venv/
+env/
+.env/
+
+# Loại bỏ các thư mục cache của python
+__pycache__/
+*.pyc
+
+# Loại bỏ dữ liệu nặng (thường ở định dạng csv, zip, datasets)
+*.csv
+*.zip
+*.json
+datasets/
+
+# Nếu dùng Jupyter Notebook
+.ipynb_checkpoints
+
+test.py
