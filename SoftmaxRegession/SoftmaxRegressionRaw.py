@@ -9,6 +9,7 @@ class SoftmaxRegressionRaw:
         self.epochs = epochs
         self.k_classes = k_classes
         self.weights = None
+        self.history = []
 
     def _softmax(self, Z):
         Z_stable = Z - np.max(Z, axis=1, keepdims=True)
@@ -36,6 +37,9 @@ class SoftmaxRegressionRaw:
             e = y_hat - y_ohe
             grad = (1 / m) * (X_aug.T @ e)
             self.weights -= self.lr * grad
+
+            loss = -np.mean(np.sum(y_ohe * np.log(y_hat + 1e-15), axis=1))
+            self.history.append(loss)
 
     def predict_prob(self, X_raw):
         X_aug = self._add_intercept(X_raw)
