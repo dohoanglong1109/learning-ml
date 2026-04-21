@@ -13,7 +13,7 @@ class KNNRaw:
         self.Y_train = y.ravel()  # m x 1
         self.n_classes = len(np.unique(self.Y_train))
 
-    def countVote(self, y_filtered):  # Expected: (a x K) -> (a x n_classes)
+    def _count_votes(self, y_filtered):  # Expected: (a x K) -> (a x n_classes)
         a = np.shape(y_filtered)[0]
         votes = np.zeros((a, self.n_classes), dtype=int)
 
@@ -22,7 +22,7 @@ class KNNRaw:
 
         return votes
 
-    def predict(self, X_new):
+    def _predict_votes(self, X_new):
         X_new_expanded = X_new[:, None, :]  #
         X_train_expanded = self.X_train[None, :, :]  # type: ignore
 
@@ -35,9 +35,13 @@ class KNNRaw:
         # Although y is (m,1) and top_k_idx is (a,K) but numpy will apply boardcasting index, make y_filtered be (a,K)
         y_filtered = self.Y_train[top_k_idx]  # type: ignore
 
-        votes = self.countVote(y_filtered)
+        votes = self._count_votes(y_filtered)
 
+        return votes
+
+    def predict(self, X_new):
+        votes = self._predict_votes(X_new)
         return np.argmax(votes, axis=1)
 
     def predict_prob(self, X_new):
-        pass
+        return self._predict_votes(X_new) / self.k
