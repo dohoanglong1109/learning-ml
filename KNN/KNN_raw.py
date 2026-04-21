@@ -6,7 +6,7 @@ class KNNRaw:
         self.k = k
         self.X_train = None
         self.Y_train = None
-        self.n_classes = None
+        self.n_classes = 0
 
     def fit(self, X, y):
         self.X_train = X  # m x n
@@ -34,3 +34,10 @@ class KNNRaw:
         top_k_idx = np.argpartition(dist, kth=self.k, axis=1)[:, : self.k]  # (a x K)
         # Although y is (m,1) and top_k_idx is (a,K) but numpy will apply boardcasting index, make y_filtered be (a,K)
         y_filtered = self.Y_train[top_k_idx]  # type: ignore
+
+        votes = self.countVote(y_filtered)
+
+        return np.argmax(votes, axis=1)
+
+    def predict_prob(self, X_new):
+        pass
