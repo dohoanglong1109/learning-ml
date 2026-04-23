@@ -13,10 +13,13 @@ import numpy as np
 
 
 class KMeansRaw:
-    def __init__(self, n_clusters, max_iters):
+    def __init__(self, n_clusters=8, max_iters=300, init="random", random_state=None):
         self.k = n_clusters
-        self.random_state = 42
-        self.cluster_center = None
+        self.max_iters = max_iters
+        self.init = init
+        self.random_state = random_state
+        self.cluster_centers_ = None
+        self.labels_ = None
 
     def _initialize_centers(self, X):
         m = X.shape[0]
@@ -38,13 +41,36 @@ class KMeansRaw:
         return dist
 
     def _assign_clusters(self, X):
-        pass
+        dist = self._compute_dist(X)
+        return np.argmin(dist, axis=1)
 
     def _update_centers(self, X, labels):
-        pass
+        new_centers = np.zeros_like(
+            self.cluster_centers_
+        )  # We dont update directly on self.cluster_center because we need to compare before and after to see if it's coverge
+
+        for k in range(self.k):
+            mask = (
+                labels == k
+            )  # This is a vector (m,) represent each datapoint belongs to which cluster
+            if np.any(
+                mask
+            ):  # Check if there is any 'True' in mask (means the cluster is empty)
+                new_centers[k] = np.mean(
+                    X[mask], axis=0
+                )  # axis=0 means calculate by vertical axis
+            else:
+                new_centers[k] = self.cluster_centers_[
+                    k
+                ]  # If the cluster is empty, dont change anything
+
+        return new_centers
 
     def fit(self, X):
-        pass
+        cluster_center = self._initialize_centers(X)
+
+        for i in range(self.max_iters):
+            pass
 
     def predict(self, X):
         pass
